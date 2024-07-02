@@ -51,11 +51,12 @@ def get_temp(lat, lon):
 
 
 @app.get("/api/hello")
-async def say_hello(request: Request, x_real_ip: str = Header(None, alias='X-Real-IP')):
+async def say_hello(request: Request):
+    x_real_ip = request.headers.get("X-Real-IP") or request.client.host
     print("X-Real-IP::::", x_real_ip)
     print("Request Host::::", request.client.host)
     visitor_name = request.query_params.get("visitor_name", "Guest")
-    ip_address = x_real_ip if x_real_ip else request.client.host
+    ip_address = x_real_ip
     loc_res = get_location_info(ip_address)
     city = "Unknown"
     lat = 0
