@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Header
 import requests
 
 app = FastAPI()
@@ -39,6 +39,7 @@ def get_location_info(ip_address):
 
 # Function to get weather information for a city
 def get_temp(lat, lon):
+    print("API KEY::::", API_KEY)
     weather_url = f"https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={lon}&units=metric&appid={API_KEY}"
     response = requests.get(weather_url)
     temp = 0
@@ -50,9 +51,11 @@ def get_temp(lat, lon):
 
 
 @app.get("/api/hello")
-async def say_hello(request: Request):
+async def say_hello(request: Request, x_real_ip: str = Header(None, alias='X-Real-IP')):
+    print("X-Real-IP::::", x_real_ip)
+    print("Request Host::::", request.client.host)
     visitor_name = request.query_params.get("visitor_name", "Guest")
-    ip_address = request.client.host
+    ip_address = x_real_ip if x_real_ip else request.client.host
     loc_res = get_location_info(ip_address)
     city = "Unknown"
     lat = 0
